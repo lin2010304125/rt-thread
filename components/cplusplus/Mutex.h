@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -21,7 +21,7 @@ namespace rtthread {
 class Mutex {
 public:
     /** Create and Initialize a Mutex object */
-    Mutex(const char* name = "mutex");
+    Mutex(const char *name = "mutex");
     ~Mutex();
 
     /** Wait until a Mutex becomes available.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -62,7 +62,7 @@ struct romfs_dirent *dfs_romfs_lookup(struct romfs_dirent *root_dirent, const ch
         return root_dirent;
     }
 
-    /* goto root directy entries */
+    /* goto root directory entries */
     dirent = (struct romfs_dirent *)root_dirent->data;
     dirent_size = root_dirent->size;
 
@@ -105,7 +105,7 @@ struct romfs_dirent *dfs_romfs_lookup(struct romfs_dirent *root_dirent, const ch
                 if (dirent[index].type == ROMFS_DIRENT_DIR)
                 {
                     /* enter directory */
-                    dirent = (struct romfs_dirent*)dirent[index].data;
+                    dirent = (struct romfs_dirent *)dirent[index].data;
                     found = 1;
                     break;
                 }
@@ -226,7 +226,7 @@ int dfs_romfs_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
 
     st->st_dev = 0;
     st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH |
-    S_IWUSR | S_IWGRP | S_IWOTH;
+                  S_IWUSR | S_IWGRP | S_IWOTH;
 
     if (dirent->type == ROMFS_DIRENT_DIR)
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -55,6 +55,7 @@
 #define FT_SOCKET                1   /* socket file  */
 #define FT_DIRECTORY             2   /* directory    */
 #define FT_USER                  3   /* user defined */
+#define FT_DEVICE                4   /* device */
 
 /* File flags */
 #define DFS_F_OPEN              0x01000000
@@ -102,7 +103,7 @@ struct dfs_fd *fd_get(int fd);
 void fd_put(struct dfs_fd *fd);
 int fd_is_open(const char *pathname);
 
-struct dfs_fdtable* dfs_fdtable_get(void);
+struct dfs_fdtable *dfs_fdtable_get(void);
 
 #ifdef __cplusplus
 }

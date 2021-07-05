@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -167,7 +167,7 @@ __exit:
     }
 
     LOG_D("erase done: addr (0x%p), size %d", (void *)addr, size);
-    return result;
+    return size;
 }
 
 #if defined(PKG_USING_FAL)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #ifdef RT_USING_RTC
-#define  rt_sensor_get_ts()  time()          /* API for the sensor to get the timestamp */
+#define  rt_sensor_get_ts()  time(RT_NULL)   /* API for the sensor to get the timestamp */
 #else
 #define  rt_sensor_get_ts()  rt_tick_get()   /* API for the sensor to get the timestamp */
 #endif
@@ -44,6 +44,7 @@ extern "C" {
 #define RT_SENSOR_CLASS_TVOC           (10) /* TVOC Level        */
 #define RT_SENSOR_CLASS_NOISE          (11) /* Noise Loudness    */
 #define RT_SENSOR_CLASS_STEP           (12) /* Step sensor       */
+#define RT_SENSOR_CLASS_FORCE          (13) /* Force sensor      */
 
 /* Sensor vendor types */
 
@@ -53,6 +54,8 @@ extern "C" {
 #define RT_SENSOR_VENDOR_INVENSENSE    (3)  /* Invensense */
 #define RT_SENSOR_VENDOR_SEMTECH       (4)  /* Semtech */
 #define RT_SENSOR_VENDOR_GOERTEK       (5)  /* Goertek */
+#define RT_SENSOR_VENDOR_MIRAMEMS      (6)  /* MiraMEMS */
+#define RT_SENSOR_VENDOR_DALLAS        (7)  /* Dallas */
 
 /* Sensor unit types */
 
@@ -69,6 +72,7 @@ extern "C" {
 #define  RT_SENSOR_UNIT_ONE            (10) /* Dimensionless quantity  unit: 1          */
 #define  RT_SENSOR_UNIT_BPM            (11) /* Heart rate              unit: bpm        */
 #define  RT_SENSOR_UNIT_MM             (12) /* Distance                unit: mm         */
+#define  RT_SENSOR_UNIT_MN             (13) /* Force                   unit: mN         */
 
 /* Sensor communication interface types */
 
@@ -101,6 +105,8 @@ extern "C" {
 #define  RT_SENSOR_CTRL_SET_MODE       (4)  /* Set sensor's work mode. ex. RT_SENSOR_MODE_POLLING,RT_SENSOR_MODE_INT */
 #define  RT_SENSOR_CTRL_SET_POWER      (5)  /* Set power mode. args type of sensor power mode. ex. RT_SENSOR_POWER_DOWN,RT_SENSOR_POWER_NORMAL */
 #define  RT_SENSOR_CTRL_SELF_TEST      (6)  /* Take a self test */
+
+#define  RT_SENSOR_CTRL_USER_CMD_START 0x100  /* User commands should be greater than 0x100 */
 
 struct rt_sensor_info
 {
@@ -147,7 +153,7 @@ struct rt_sensor_device
     const struct rt_sensor_ops  *ops;       /* The sensor ops */
 
     struct rt_sensor_module     *module;    /* The sensor module */
-    
+
     rt_err_t (*irq_handle)(rt_sensor_t sensor);             /* Called when an interrupt is generated, registered by the driver */
 };
 
@@ -185,6 +191,7 @@ struct rt_sensor_data
         rt_int32_t           tvoc;          /* TVOC.                unit: permillage  */
         rt_int32_t           noise;         /* Noise Loudness.      unit: HZ          */
         rt_uint32_t          step;          /* Step sensor.         unit: 1           */
+        rt_int32_t           force;         /* Force sensor.        unit: mN          */
     } data;
 };
 

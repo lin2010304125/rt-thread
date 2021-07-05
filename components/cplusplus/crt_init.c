@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -50,11 +50,11 @@ RT_WEAK int cplusplus_system_init(void)
 
     for (; base != lim; base++)
     {
-        PROC *proc = (PROC*)((const char*)base + *base);
+        PROC *proc = (PROC *)((const char *)base + *base);
         (*proc)();
     }
 #elif defined(__GNUC__)
-    typedef void(*pfunc) ();
+    typedef void(*pfunc)();
     extern pfunc __ctors_start__[];
     extern pfunc __ctors_end__[];
     pfunc *p;

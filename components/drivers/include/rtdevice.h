@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -120,6 +120,18 @@ extern "C" {
 #endif
 #ifdef MTD_USING_NAND
 #include "drivers/mtdnand.h"
+#endif
+
+#ifdef RT_USING_HWCRYPTO
+#include "drivers/crypto.h"
+#endif
+
+#ifdef RT_USING_PULSE_ENCODER
+#include "drivers/pulse_encoder.h"
+#endif
+
+#ifdef RT_USING_INPUT_CAPTURE
+#include "drivers/rt_inputcapture.h"
 #endif
 
 #ifdef __cplusplus

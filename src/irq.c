@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,7 +20,7 @@ static void (*rt_interrupt_leave_hook)(void);
 
 /**
  * @ingroup Hook
- * This function set a hook function when the system enter a interrupt 
+ * This function set a hook function when the system enter a interrupt
  *
  * @note the hook function must be simple and never be blocked or suspend.
  */
@@ -30,7 +30,7 @@ void rt_interrupt_enter_sethook(void (*hook)(void))
 }
 /**
  * @ingroup Hook
- * This function set a hook function when the system exit a interrupt. 
+ * This function set a hook function when the system exit a interrupt.
  *
  * @note the hook function must be simple and never be blocked or suspend.
  */
@@ -100,9 +100,15 @@ RTM_EXPORT(rt_interrupt_leave);
  *
  * @return the number of nested interrupts.
  */
-rt_uint8_t rt_interrupt_get_nest(void)
+RT_WEAK rt_uint8_t rt_interrupt_get_nest(void)
 {
-    return rt_interrupt_nest;
+    rt_uint8_t ret;
+    rt_base_t level;
+
+    level = rt_hw_interrupt_disable();
+    ret = rt_interrupt_nest;
+    rt_hw_interrupt_enable(level);
+    return ret;
 }
 RTM_EXPORT(rt_interrupt_get_nest);
 

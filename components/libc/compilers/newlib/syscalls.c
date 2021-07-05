@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -17,15 +17,19 @@
 #include <dfs_posix.h>
 #endif
 
-#ifdef RT_USING_PTHREADS
-#include <pthread.h>
-#endif
-
 #ifdef RT_USING_MODULE
 #include <dlmodule.h>
 #endif
 
 /* Reentrant versions of system calls.  */
+
+#ifndef _REENT_ONLY
+int *
+__errno ()
+{
+  return _rt_errno();
+}
+#endif
 
 int
 _close_r(struct _reent *ptr, int fd)
@@ -433,4 +437,19 @@ void abort(void)
     }
 
     while (1);
+}
+
+uid_t getuid(void)
+{
+    return 0;
+}
+
+mode_t umask(mode_t mask)
+{
+    return 022;
+}
+
+int flock(int fd, int operation)
+{
+    return 0;
 }

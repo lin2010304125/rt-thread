@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -35,6 +35,14 @@ extern "C" {
 
 #ifndef RT_WLAN_EBOX_NUM
 #define RT_WLAN_EBOX_NUM           (10)
+#endif
+
+#ifndef RT_WLAN_SCAN_RETRY_CNT
+#define RT_WLAN_SCAN_RETRY_CNT      (3)
+#endif
+
+#ifndef AUTO_CONNECTION_PERIOD_MS
+#define AUTO_CONNECTION_PERIOD_MS (2000)
 #endif
 
 /*state fot station*/

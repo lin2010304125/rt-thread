@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -16,8 +16,8 @@
 #include <dfs_fs.h>
 #include <dfs_posix.h>
 
-#define DBG_SECTION_NAME  "app.card"
-#define DBG_LEVEL DBG_INFO
+#define DBG_TAG "app.card"
+#define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
 void sd_mount(void *parameter)

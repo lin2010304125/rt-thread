@@ -2,7 +2,7 @@
  * File      : dhcp_server.h
  *             A simple DHCP server implementation
  *
- * COPYRIGHT (C) 2011-2018, Shanghai Real-Thread Technology Co., Ltd
+ * COPYRIGHT (C) 2011-2021, Shanghai Real-Thread Technology Co., Ltd
  * http://www.rt-thread.com
  * All rights reserved.
  *
@@ -44,6 +44,7 @@ extern "C" {
 #endif
 
 void dhcpd_start(const char *netif_name);
+void dhcpd_stop(const char *netif_name);
 
 #ifdef __cplusplus
 }

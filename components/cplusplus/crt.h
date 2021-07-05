@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -18,7 +18,7 @@ void *operator new(size_t size);
 void *operator new[](size_t size);
 
 void operator delete(void * ptr);
-void operator delete[] (void *ptr);
+void operator delete[](void *ptr);
 
 extern "C" void __cxa_pure_virtual(void);
 extern "C" int  cplusplus_system_init(void);

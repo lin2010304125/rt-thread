@@ -2,7 +2,7 @@
  * File      : dhcp_server.c
  *             A simple DHCP server implementation
  *
- * COPYRIGHT (C) 2011-2018, Shanghai Real-Thread Technology Co., Ltd
+ * COPYRIGHT (C) 2011-2021, Shanghai Real-Thread Technology Co., Ltd
  * http://www.rt-thread.com
  * All rights reserved.
  *
@@ -279,6 +279,7 @@ static void dhcpd_thread_entry(void *parameter)
     {
         /* bind failed. */
         DEBUG_PRINTF("bind server address failed, errno=%d\n", errno);
+        closesocket(sock);
         rt_free(recv_data);
         return;
     }
@@ -290,7 +291,13 @@ static void dhcpd_thread_entry(void *parameter)
     {
         bytes_read = recvfrom(sock, recv_data, BUFSZ - 1, 0,
                               (struct sockaddr *)&client_addr, &addr_len);
-        if (bytes_read < DHCP_MSG_LEN)
+        if (bytes_read <= 0)
+        {
+            closesocket(sock);
+            rt_free(recv_data);
+            return;
+        }
+        else if (bytes_read < DHCP_MSG_LEN)
         {
             DEBUG_PRINTF("packet too short, wait for next!\n");
             continue;
@@ -546,4 +553,3 @@ void dhcpd_start(const char *netif_name)
         rt_thread_startup(thread);
     }
 }
-

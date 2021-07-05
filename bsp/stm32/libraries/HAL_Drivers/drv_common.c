@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -9,6 +9,7 @@
  */
 
 #include "drv_common.h"
+#include "board.h"
 
 #ifdef RT_USING_SERIAL
 #include "drv_usart.h"
@@ -26,7 +27,11 @@ FINSH_FUNCTION_EXPORT_ALIAS(reboot, __cmd_reboot, Reboot System);
 /* SysTick configuration */
 void rt_hw_systick_init(void)
 {
+#if defined (SOC_SERIES_STM32H7)
+    HAL_SYSTICK_Config((HAL_RCCEx_GetD1SysClockFreq()) / RT_TICK_PER_SECOND);
+#else
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / RT_TICK_PER_SECOND);
+#endif
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
@@ -93,32 +98,16 @@ void _Error_Handler(char *s, int num)
  */
 void rt_hw_us_delay(rt_uint32_t us)
 {
-    rt_uint32_t ticks;
-    rt_uint32_t told, tnow, tcnt = 0;
-    rt_uint32_t reload = SysTick->LOAD;
-
-    ticks = us * reload / (1000000 / RT_TICK_PER_SECOND);
-    told = SysTick->VAL;
-    while (1)
+    rt_uint32_t start, now, delta, reload, us_tick;
+    start = SysTick->VAL;
+    reload = SysTick->LOAD;
+    us_tick = SystemCoreClock / 1000000UL;
+    do
     {
-        tnow = SysTick->VAL;
-        if (tnow != told)
-        {
-            if (tnow < told)
-            {
-                tcnt += told - tnow;
-            }
-            else
-            {
-                tcnt += reload - tnow + told;
-            }
-            told = tnow;
-            if (tcnt >= ticks)
-            {
-                break;
-            }
-        }
+        now = SysTick->VAL;
+        delta = start >= now ? start - now : reload + start - now;
     }
+    while (delta < us_tick * us);
 }
 
 /**
@@ -139,8 +128,13 @@ RT_WEAK void rt_hw_board_init()
     /* HAL_Init() function is called at the beginning of the program */
     HAL_Init();
 
+    /* enable interrupt */
+    __set_PRIMASK(0);
     /* System clock initialization */
     SystemClock_Config();
+    /* disable interrupt */
+    __set_PRIMASK(1);
+
     rt_hw_systick_init();
 
     /* Heap initialization */

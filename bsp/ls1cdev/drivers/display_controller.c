@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,7 +7,7 @@
  * Date           Author           Notes
  * 2011-08-09     lgnq         first version for LS1B DC
  * 2015-07-06    chinesebear   modified for loongson 1c
- * 2018-01-06    sundm75       modified for smartloong 
+ * 2018-01-06    sundm75       modified for smartloong
  */
  #include <rtthread.h>
 
@@ -41,8 +41,12 @@ struct vga_struct vga_mode[] =
     {/*"1440x900_67.00"*/   120280, 1440,   1528,   1680,   1920,   900,    901,    904,    935,    },
 };
 
+static volatile int fb_index = 0;
+
 ALIGN(16)
 volatile rt_uint16_t _rt_framebuffer[FB_YSIZE][FB_XSIZE];
+volatile rt_uint16_t _rt_framebuffer0[FB_YSIZE][FB_XSIZE];
+volatile rt_uint16_t _rt_framebuffer1[FB_YSIZE][FB_XSIZE];
 static struct rt_device_graphic_info _dc_info;
 
 static void pwminit(void)
@@ -74,13 +78,13 @@ int caclulate_freq(rt_uint32_t  XIN, rt_uint32_t PCLK)
     pix_div = (pix_div>>24)&0xff;
     rt_kprintf("old pll_clk=%d, pix_div=%d\n", pll_clk, pix_div);
 
-    divider_int = pll_clk/(1000000) *PCLK/1000; 
+    divider_int = pll_clk/(1000000) *PCLK/1000;
     if(divider_int%1000>=500)
         divider_int = divider_int/1000+1;
     else
         divider_int = divider_int/1000;
     rt_kprintf("divider_int = %d\n", divider_int);
-    
+
     /* check whether divisor is too small. */
     if (divider_int < 1) {
         rt_kprintf("Warning: clock source is too slow.Try smaller resolution\n");
@@ -98,9 +102,9 @@ int caclulate_freq(rt_uint32_t  XIN, rt_uint32_t PCLK)
         regval &= ~0x80000030;    //PIX_DIV_VALID  PIX_SEL  置0
         regval &= ~(0x3f<<24);    //PIX_DIV 清零
         regval |= divider_int << 24;
-        PLL_DIV_PARAM = regval; 
+        PLL_DIV_PARAM = regval;
         regval |= 0x80000030;    //PIX_DIV_VALID  PIX_SEL  置1
-        PLL_DIV_PARAM = regval; 
+        PLL_DIV_PARAM = regval;
     }
     rt_kprintf("new PLL_FREQ=0x%x, PLL_DIV_PARAM=0x%x\n", PLL_FREQ, PLL_DIV_PARAM);
     rt_thread_delay(10);
@@ -111,11 +115,11 @@ static rt_err_t rt_dc_init(rt_device_t dev)
 {
     int i, out, mode=-1;
     int val;
-    
+
     rt_kprintf("PWM initied\n");
     /* Set the back light PWM. */
     pwminit();
-    
+
     for (i=0; i<sizeof(vga_mode)/sizeof(struct vga_struct); i++)
     {
         if (vga_mode[i].hr == FB_XSIZE && vga_mode[i].vr == FB_YSIZE)
@@ -130,15 +134,13 @@ static rt_err_t rt_dc_init(rt_device_t dev)
     if (mode<0)
     {
         rt_kprintf("\n\n\nunsupported framebuffer resolution\n\n\n");
-        return;
+        return RT_ERROR;
     }
 
     DC_FB_CONFIG = 0x0;
     DC_FB_CONFIG = 0x3; //    // framebuffer configuration RGB565
-    DC_FB_BUFFER_ADDR0 = (rt_uint32_t)_rt_framebuffer - 0x80000000;
-    DC_FB_BUFFER_ADDR1 = (rt_uint32_t)_rt_framebuffer - 0x80000000;
     DC_DITHER_CONFIG = 0x0;  //颜色抖动配置寄存器
-    DC_DITHER_TABLE_LOW = 0x0; //颜色抖动查找表低位寄存器 
+    DC_DITHER_TABLE_LOW = 0x0; //颜色抖动查找表低位寄存器
     DC_DITHER_TABLE_HIGH = 0x0; //颜色抖动查找表高位寄存器
     DC_PANEL_CONFIG = 0x80001311; //液晶面板配置寄存器
     DC_PANEL_TIMING = 0x0;
@@ -163,10 +165,10 @@ static rt_err_t rt_dc_init(rt_device_t dev)
 #elif defined(CONFIG_VIDEO_12BPP)
     DC_FB_CONFIG = 0x00100101;
     DC_FB_BUFFER_STRIDE =  (FB_XSIZE*2+255)&(~255);
-#else  
+#else
     DC_FB_CONFIG = 0x00100104;
     DC_FB_BUFFER_STRIDE = (FB_XSIZE*4+255)&(~255);
-#endif 
+#endif
     return RT_EOK;
 }
 
@@ -175,12 +177,30 @@ static rt_err_t rt_dc_control(rt_device_t dev, int cmd, void *args)
     switch (cmd)
     {
     case RTGRAPHIC_CTRL_RECT_UPDATE:
+    {
+        if (fb_index == 0)
+        {
+            DC_FB_BUFFER_ADDR0 = (rt_uint32_t)_rt_framebuffer1 - 0x80000000;
+            DC_FB_BUFFER_ADDR1 = (rt_uint32_t)_rt_framebuffer1 - 0x80000000;
+            rt_memcpy((void *)_rt_framebuffer1, (const void *)_rt_framebuffer, sizeof(_rt_framebuffer));
+            rt_memcpy((void *)_rt_framebuffer1, (const void *)_rt_framebuffer, sizeof(_rt_framebuffer));
+            fb_index =1;
+        }
+        else
+        {
+            DC_FB_BUFFER_ADDR0 = (rt_uint32_t)_rt_framebuffer0 - 0x80000000;
+            DC_FB_BUFFER_ADDR1 = (rt_uint32_t)_rt_framebuffer0 - 0x80000000;
+            rt_memcpy((void *)_rt_framebuffer0, (const void *)_rt_framebuffer, sizeof(_rt_framebuffer));
+            rt_memcpy((void *)_rt_framebuffer0, (const void *)_rt_framebuffer, sizeof(_rt_framebuffer));
+            fb_index =0;
+        }
         break;
+    }
     case RTGRAPHIC_CTRL_POWERON:
         break;
     case RTGRAPHIC_CTRL_POWEROFF:
         break;
-    case RTGRAPHIC_CTRL_GET_INFO:        
+    case RTGRAPHIC_CTRL_GET_INFO:
         rt_memcpy(args, &_dc_info, sizeof(_dc_info));
         break;
     case RTGRAPHIC_CTRL_SET_MODE:
@@ -193,14 +213,14 @@ static rt_err_t rt_dc_control(rt_device_t dev, int cmd, void *args)
 void rt_hw_dc_init(void)
 {
     rt_device_t dc = rt_malloc(sizeof(struct rt_device));
-    if (dc == RT_NULL) 
+    if (dc == RT_NULL)
     {
         rt_kprintf("dc == RT_NULL\n");
         return; /* no memory yet */
     }
 
     _dc_info.bits_per_pixel = 16;
-    _dc_info.pixel_format = RTGRAPHIC_PIXEL_FORMAT_RGB565P;
+    _dc_info.pixel_format = RTGRAPHIC_PIXEL_FORMAT_RGB565;
     _dc_info.framebuffer = (rt_uint8_t*)HW_FB_ADDR;
     _dc_info.width = FB_XSIZE;
     _dc_info.height = FB_YSIZE;
@@ -212,10 +232,10 @@ void rt_hw_dc_init(void)
     dc->close = RT_NULL;
     dc->control = rt_dc_control;
     dc->user_data = (void*)&_dc_info;
-    
+
     /* register Display Controller device to RT-Thread */
     rt_device_register(dc, "dc", RT_DEVICE_FLAG_RDWR);
-    
+
     rt_device_init(dc);
 }
 
@@ -230,7 +250,7 @@ int rtgui_lcd_init(void)
 
     pin_set_purpose(76, PIN_PURPOSE_OTHER);
     pin_set_remap(76, PIN_REMAP_DEFAULT);
-    
+
      /* init Display Controller */
     rt_hw_dc_init();
 
@@ -239,7 +259,7 @@ int rtgui_lcd_init(void)
 
     /* set Display Controller device as rtgui graphic driver */
     rtgui_graphic_set_device(dc);
-    
+
     return 0;
 }
 

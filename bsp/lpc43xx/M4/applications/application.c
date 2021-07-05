@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -18,10 +18,6 @@
 #include <shell.h>
 #endif
 
-#ifdef RT_USING_LOGTRACE
-#include <log_trace.h>
-#endif
-
 #ifdef RT_USING_VBUS
 #include <vbus.h>
 #endif
@@ -36,10 +32,10 @@ static void _boot_M0(void)
 
     LPC_CREG->M0APPMEMMAP = (uint32_t)&_M0_CODE[0];
 
-    // Release Slave from reset,  first read status 
+    // Release Slave from reset,  first read status
     u32REG = LPC_RGU->RESET_ACTIVE_STATUS1;
 
-    // If the M0 is being held in reset,  release it... 
+    // If the M0 is being held in reset,  release it...
     // 1 = no reset,  0 = reset
     while(!(u32REG & (1u << 24)))
     {
@@ -59,10 +55,6 @@ void rt_init_thread_entry(void *parameter)
      *register unsigned int _psp __asm("psp");
      *rt_kprintf("msp@ %p, psp@ %p\n", _msp, _psp);
      */
-#ifdef RT_USING_LOGTRACE
-    log_trace_init();
-    log_trace_set_device(RT_CONSOLE_DEVICE_NAME);
-#endif
 
 #ifdef RT_USING_FINSH
     /* initialize finsh */

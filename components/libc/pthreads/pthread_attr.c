@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -16,14 +16,17 @@
 #define DEFAULT_STACK_SIZE  2048
 #define DEFAULT_PRIORITY    (RT_THREAD_PRIORITY_MAX/2 + RT_THREAD_PRIORITY_MAX/4)
 
-const pthread_attr_t pthread_default_attr = 
+const pthread_attr_t pthread_default_attr =
 {
     0,                          /* stack base */
     DEFAULT_STACK_SIZE,         /* stack size */
-    DEFAULT_PRIORITY,           /* priority */
-    PTHREAD_CREATE_JOINABLE,    /* detach state */
+
+    PTHREAD_INHERIT_SCHED,      /* Inherit parent prio/policy */
     SCHED_FIFO,                 /* scheduler policy */
-    PTHREAD_INHERIT_SCHED       /* Inherit parent prio/policy */
+    {
+        DEFAULT_PRIORITY,       /* scheduler priority */
+    },
+    PTHREAD_CREATE_JOINABLE,    /* detach state */
 };
 
 int pthread_attr_init(pthread_attr_t *attr)
@@ -73,7 +76,7 @@ int pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
 {
     RT_ASSERT(attr != RT_NULL);
 
-    attr->policy = policy;
+    attr->schedpolicy = policy;
 
     return 0;
 }
@@ -83,7 +86,7 @@ int pthread_attr_getschedpolicy(pthread_attr_t const *attr, int *policy)
 {
     RT_ASSERT(attr != RT_NULL);
 
-    *policy = (int)attr->policy;
+    *policy = (int)attr->schedpolicy;
 
     return 0;
 }
@@ -95,7 +98,7 @@ int pthread_attr_setschedparam(pthread_attr_t           *attr,
     RT_ASSERT(attr != RT_NULL);
     RT_ASSERT(param != RT_NULL);
 
-    attr->priority = param->sched_priority;
+    attr->schedparam.sched_priority = param->sched_priority;
 
     return 0;
 }
@@ -107,7 +110,7 @@ int pthread_attr_getschedparam(pthread_attr_t const *attr,
     RT_ASSERT(attr != RT_NULL);
     RT_ASSERT(param != RT_NULL);
 
-    param->sched_priority = attr->priority;
+    param->sched_priority = attr->schedparam.sched_priority;
 
     return 0;
 }
@@ -117,7 +120,7 @@ int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stack_size)
 {
     RT_ASSERT(attr != RT_NULL);
 
-    attr->stack_size = stack_size;
+    attr->stacksize = stack_size;
 
     return 0;
 }
@@ -127,7 +130,7 @@ int pthread_attr_getstacksize(pthread_attr_t const *attr, size_t *stack_size)
 {
     RT_ASSERT(attr != RT_NULL);
 
-    *stack_size = attr->stack_size;
+    *stack_size = attr->stacksize;
 
     return 0;
 }
@@ -155,8 +158,8 @@ int pthread_attr_setstack(pthread_attr_t *attr,
 {
     RT_ASSERT(attr != RT_NULL);
 
-    attr->stack_base = stack_base;
-    attr->stack_size = RT_ALIGN_DOWN(stack_size, RT_ALIGN_SIZE);
+    attr->stackaddr = stack_base;
+    attr->stacksize = RT_ALIGN_DOWN(stack_size, RT_ALIGN_SIZE);
 
     return 0;
 }
@@ -168,8 +171,8 @@ int pthread_attr_getstack(pthread_attr_t const *attr,
 {
     RT_ASSERT(attr != RT_NULL);
 
-    *stack_base = attr->stack_base;
-    *stack_size = attr->stack_size;
+    *stack_base = attr->stackaddr;
+    *stack_size = attr->stacksize;
 
     return 0;
 }

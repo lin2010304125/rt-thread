@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -22,7 +22,10 @@ void *pthread_getspecific(pthread_key_t key)
 {
     struct _pthread_data* ptd;
 
-    ptd = _pthread_get_data(rt_thread_self());
+    if (rt_thread_self() == NULL) return NULL;
+
+    /* get pthread data from user data of thread */
+    ptd = (_pthread_data_t *)rt_thread_self()->user_data;
     RT_ASSERT(ptd != NULL);
 
     if (ptd->tls == NULL)
@@ -39,7 +42,10 @@ int pthread_setspecific(pthread_key_t key, const void *value)
 {
     struct _pthread_data* ptd;
 
-    ptd = _pthread_get_data(rt_thread_self());
+    if (rt_thread_self() == NULL) return EINVAL;
+
+    /* get pthread data from user data of thread */
+    ptd = (_pthread_data_t *)rt_thread_self()->user_data;
     RT_ASSERT(ptd != NULL);
 
     /* check tls area */

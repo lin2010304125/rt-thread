@@ -1,22 +1,26 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
  * 2009-01-05     Bernard      the first version
- * 2014-04-27     Bernard      make code cleanup. 
+ * 2014-04-27     Bernard      make code cleanup.
  */
 
 #include <board.h>
 #include <rtthread.h>
 
+#ifdef RT_USING_FINSH
+#include "shell.h"
+#endif
+
 void rt_init_thread_entry(void* parameter)
 {
-    /* initialization RT-Thread Components */
-    rt_components_init();
-	
+#ifdef RT_USING_FINSH
+    finsh_system_init();
+#endif
 }
 
 int rt_application_init()

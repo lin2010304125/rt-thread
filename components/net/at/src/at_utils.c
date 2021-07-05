@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -70,7 +70,7 @@ rt_size_t at_vprintf(rt_device_t device, const char *format, va_list args)
     last_cmd_len = vsnprintf(send_buf, sizeof(send_buf), format, args);
 
 #ifdef AT_PRINT_RAW_CMD
-    at_print_raw_cmd("send", send_buf, last_cmd_len);
+    at_print_raw_cmd("sendline", send_buf, last_cmd_len);
 #endif
 
     return rt_device_write(device, 0, send_buf, last_cmd_len);

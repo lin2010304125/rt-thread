@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -13,6 +13,7 @@
 
 #include <registers.h>
 #include <irq_numbers.h>
+#include "imx6ul.h"
 
 #define CONFIG_MX6
 #define CONFIG_MX6UL

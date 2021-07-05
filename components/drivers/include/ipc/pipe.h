@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,6 +24,7 @@
 struct rt_pipe_device
 {
     struct rt_device parent;
+    rt_bool_t is_named;
 
     /* ring buffer in pipe device */
     struct rt_ringbuffer *fifo;

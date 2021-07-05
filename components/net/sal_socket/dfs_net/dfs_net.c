@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -21,7 +21,7 @@
 int dfs_net_getsocket(int fd)
 {
     int socket;
-    struct dfs_fd *_dfs_fd; 
+    struct dfs_fd *_dfs_fd;
 
     _dfs_fd = fd_get(fd);
     if (_dfs_fd == NULL) return -1;
@@ -35,7 +35,9 @@ int dfs_net_getsocket(int fd)
 
 static int dfs_net_ioctl(struct dfs_fd* file, int cmd, void* args)
 {
-    return -EIO;
+    int socket = (int) file->data;
+
+    return sal_ioctlsocket(socket, cmd, args);
 }
 
 static int dfs_net_read(struct dfs_fd* file, void *buf, size_t count)
@@ -66,7 +68,7 @@ static int dfs_net_poll(struct dfs_fd *file, struct rt_pollreq *req)
     return sal_poll(file, req);
 }
 
-const struct dfs_file_ops _net_fops = 
+const struct dfs_file_ops _net_fops =
 {
     NULL,    /* open     */
     dfs_net_close,

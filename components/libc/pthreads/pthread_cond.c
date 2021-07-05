@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -84,10 +84,10 @@ int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 
     rt_snprintf(cond_name, sizeof(cond_name), "cond%02d", cond_num++);
 
-	if (attr == RT_NULL) /* use default value */
-		cond->attr = PTHREAD_PROCESS_PRIVATE;
-	else 
-	    cond->attr = *attr;
+    if (attr == RT_NULL) /* use default value */
+        cond->attr = PTHREAD_PROCESS_PRIVATE;
+    else
+        cond->attr = *attr;
 
     result = rt_sem_init(&cond->sem, cond_name, 0, RT_IPC_FLAG_FIFO);
     if (result != RT_EOK)
@@ -189,7 +189,7 @@ rt_err_t _pthread_cond_timedwait(pthread_cond_t  *cond,
         pthread_cond_init(cond, RT_NULL);
 
     /* The mutex was not owned by the current thread at the time of the call. */
-    if (mutex->lock.owner != pthread_self())
+    if (mutex->lock.owner != rt_thread_self())
         return -RT_ERROR;
     /* unlock a mutex failed */
     if (pthread_mutex_unlock(mutex) != 0)

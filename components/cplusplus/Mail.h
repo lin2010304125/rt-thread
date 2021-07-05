@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -28,7 +28,7 @@ template<typename T, uint32_t queue_sz>
 class Mail {
 public:
     /** Create and Initialise Mail queue. */
-    Mail(const char* name = "")
+    Mail(const char *name = "")
     {
         rt_mb_init(&mID, name, mPool, queue_sz, RT_IPC_FLAG_FIFO);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -381,6 +381,11 @@ typedef struct rt_wlan_key rt_wlan_key_t;
                                         (_info)->channel = -1; \
                                     } while(0)
 
+#define SSID_SET(_info, _ssid)    do {    \
+                                        rt_strncpy((char *)(_info)->ssid.val, (_ssid), RT_WLAN_SSID_MAX_LENGTH); \
+                                        (_info)->ssid.len = rt_strlen((char *)(_info)->ssid.val); \
+                                    } while(0)
+
 struct rt_wlan_info
 {
     /* security type */
@@ -442,6 +447,7 @@ struct rt_wlan_device
     rt_wlan_pormisc_callback_t pormisc_callback;
     const struct rt_wlan_dev_ops *ops;
     rt_uint32_t flags;
+    struct netdev *netdev;
     void *prot;
     void *user_data;
 };
@@ -470,6 +476,7 @@ struct rt_scan_info
     rt_uint8_t bssid[6];
     rt_int16_t channel_min;
     rt_int16_t channel_max;
+    rt_bool_t passive;
 };
 
 struct rt_wlan_dev_ops
@@ -576,7 +583,7 @@ rt_err_t rt_wlan_dev_report_data(struct rt_wlan_device *device, void *buff, int 
 /*
  * wlan device register interface
  */
-rt_err_t rt_wlan_dev_register(struct rt_wlan_device *wlan, const char *name, 
+rt_err_t rt_wlan_dev_register(struct rt_wlan_device *wlan, const char *name,
     const struct rt_wlan_dev_ops *ops, rt_uint32_t flag, void *user_data);
 
 #ifdef __cplusplus

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -34,7 +34,7 @@
 #define RT_MEMHEAP_MINIALLOC    12
 
 #define RT_MEMHEAP_SIZE         RT_ALIGN(sizeof(struct rt_memheap_item), RT_ALIGN_SIZE)
-#define MEMITEM_SIZE(item)      ((rt_uint32_t)item->next - (rt_uint32_t)item - RT_MEMHEAP_SIZE)
+#define MEMITEM_SIZE(item)      ((rt_ubase_t)item->next - (rt_ubase_t)item - RT_MEMHEAP_SIZE)
 
 /*
  * The initialized memory pool will be:
@@ -50,7 +50,7 @@
 rt_err_t rt_memheap_init(struct rt_memheap *memheap,
                          const char        *name,
                          void              *start_addr,
-                         rt_uint32_t        size)
+                         rt_size_t         size)
 {
     struct rt_memheap_item *item;
 
@@ -127,7 +127,7 @@ rt_err_t rt_memheap_detach(struct rt_memheap *heap)
     RT_ASSERT(rt_object_get_type(&heap->parent) == RT_Object_Class_MemHeap);
     RT_ASSERT(rt_object_is_systemobject(&heap->parent));
 
-    rt_object_detach(&(heap->lock.parent.parent));
+    rt_sem_detach(&heap->lock);
     rt_object_detach(&(heap->parent));
 
     /* Return a successful completion. */
@@ -135,7 +135,7 @@ rt_err_t rt_memheap_detach(struct rt_memheap *heap)
 }
 RTM_EXPORT(rt_memheap_detach);
 
-void *rt_memheap_alloc(struct rt_memheap *heap, rt_uint32_t size)
+void *rt_memheap_alloc(struct rt_memheap *heap, rt_size_t size)
 {
     rt_err_t result;
     rt_uint32_t free_size;
@@ -711,6 +711,20 @@ void *rt_calloc(rt_size_t count, rt_size_t size)
     return ptr;
 }
 RTM_EXPORT(rt_calloc);
+
+void rt_memory_info(rt_uint32_t *total,
+                    rt_uint32_t *used,
+                    rt_uint32_t *max_used)
+{
+    if (total != RT_NULL)
+        *total = _heap.pool_size;
+
+    if (used  != RT_NULL)
+        *used = _heap.pool_size - _heap.available_size;
+
+    if (max_used != RT_NULL)
+        *max_used = _heap.max_used_size;
+}
 
 #endif
 
